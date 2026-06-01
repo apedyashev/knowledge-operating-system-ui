@@ -1,0 +1,48 @@
+<aside
+  class="h-full border-r border-[var(--color-accent-muted)] bg-[var(--color-surface)] p-4 text-[var(--color-primary)]"
+  aria-label="Node navigation"
+>
+  <div class="mb-5">
+    <h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--color-accent-active)]">Recent Nodes</h2>
+    <ul class="space-y-1.5 text-sm">
+      @for (node of recentNodes; track node) {
+        <li>
+          <button
+            type="button"
+            class="w-full rounded px-2 py-1.5 text-left transition hover:bg-[var(--color-accent-muted)]/35 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-active)]"
+          >
+            {{ node }}
+          </button>
+        </li>
+      }
+    </ul>
+  </div>
+
+  <div class="mb-5">
+    <h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--color-accent-active)]">Tags</h2>
+    <ul class="flex flex-wrap gap-2 text-xs">
+      @for (tag of tags; track tag) {
+        <li class="rounded-full border border-[var(--color-accent-muted)] px-2 py-1 text-[var(--color-primary)]">
+          #{{ tag }}
+        </li>
+      }
+    </ul>
+  </div>
+
+  <div>
+    <h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-[var(--color-accent-active)]">Filters</h2>
+    <ul class="space-y-1.5 text-sm">
+      @for (filter of filters; track filter) {
+        <li>
+          <label class="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover:bg-[var(--color-accent-muted)]/35">
+            <input
+              type="checkbox"
+              class="h-4 w-4 rounded border-[var(--color-accent-muted)] text-[var(--color-accent-active)] focus:ring-[var(--color-accent-active)]"
+            />
+            <span>{{ filter }}</span>
+          </label>
+        </li>
+      }
+    </ul>
+  </div>
+</aside>
