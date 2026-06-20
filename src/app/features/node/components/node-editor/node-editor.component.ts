@@ -10,6 +10,7 @@ import {
   TiptapEditorDirective,
   TiptapFloatingMenuDirective
 } from 'ngx-tiptap';
+import { KnowledgeMention } from './knowledge-mention';
 
 type MentionNode = {
   id: string;
@@ -44,6 +45,7 @@ export class NodeEditorComponent implements OnDestroy {
     content: ``,
     extensions: [
       StarterKit,
+      KnowledgeMention,
       // Placeholder text helps replicate the guided empty-state behavior from Notion-style editors.
       Placeholder.configure({
         placeholder: ({ node }) => {
@@ -88,12 +90,16 @@ export class NodeEditorComponent implements OnDestroy {
   }
 
   // This returns the exact shape expected by node create/update APIs.
-  protected buildNodePayload(): { title: string; content: string } {
-    const content = this.editor.getHTML();
-    const fallbackTitle = this.extractTitleFromContent(content);
-    const title = this.title.trim() || fallbackTitle || 'Untitled';
+  protected buildNodePayload(): { title: string; content: any } {
+    const content = this.editor.getJSON() as any;
+    const title = this.title.trim() || 'Untitled';
 
     return { title, content };
+  }
+
+  // Title changes should flow through the same debounced stream as editor body changes.
+  protected onTitleChange(): void {
+    this.onEditorStateChange();
   }
 
   // Fallback title extraction helps recover data if title input is accidentally empty.
@@ -115,7 +121,14 @@ export class NodeEditorComponent implements OnDestroy {
     state: EditorState;
     from: number;
     to: number;
-  }): boolean => !this.shouldShowMentionMenu(props) && !this.shouldShowSlashMenu(props);
+  }): boolean => {
+    if (this.shouldShowMentionMenu(props) || this.shouldShowSlashMenu(props)) {
+      return false;
+    }
+
+    // Avoid showing the floating formatting menu on a plain caret click.
+    return props.from !== props.to;
+  };
 
   // Slash command mode becomes active when the user types /query in the current text block.
   protected shouldShowSlashMenu = (props: {
@@ -133,14 +146,19 @@ export class NodeEditorComponent implements OnDestroy {
 
     const { $from } = state.selection;
     const textBeforeCursor = $from.parent.textBetween(0, $from.parentOffset, ' ', ' ');
-    const slashMatch = /(^|\s)\/([^\s]*)$/.exec(textBeforeCursor);
-
-    if (!slashMatch) {
+    if (!textBeforeCursor || !textBeforeCursor.includes('/')) {
       this.slashRange = null;
       return false;
     }
 
-    const rawSlash = `/${slashMatch[2]}`;
+    const lastToken = textBeforeCursor.split(/\s+/).pop() ?? '';
+
+    if (!lastToken.startsWith('/')) {
+      this.slashRange = null;
+      return false;
+    }
+
+    const rawSlash = lastToken;
     this.slashRange = {
       from: from - rawSlash.length,
       to: from
@@ -149,7 +167,7 @@ export class NodeEditorComponent implements OnDestroy {
     return true;
   };
 
-  // Mention mode becomes active when the user types #query in the current text block.
+  // Mention mode becomes active when the user types @query in the current text block.
   protected shouldShowMentionMenu = (props: {
     editor: Editor;
     state: EditorState;
@@ -166,7 +184,7 @@ export class NodeEditorComponent implements OnDestroy {
 
     const { $from } = state.selection;
     const textBeforeCursor = $from.parent.textBetween(0, $from.parentOffset, ' ', ' ');
-    const mentionMatch = /(^|\s)#([^\s]*)$/.exec(textBeforeCursor);
+    const mentionMatch = /(^|\s)@([^\s]*)$/.exec(textBeforeCursor);
 
     if (!mentionMatch) {
       this.mentionRange = null;
@@ -174,7 +192,7 @@ export class NodeEditorComponent implements OnDestroy {
       return false;
     }
 
-    const rawMention = `#${mentionMatch[2]}`;
+    const rawMention = `@${mentionMatch[2]}`;
     this.mentionRange = {
       from: from - rawMention.length,
       to: from
@@ -184,21 +202,21 @@ export class NodeEditorComponent implements OnDestroy {
     return this.filteredMentionSuggestions.length > 0;
   };
 
-  // Inserts the selected mock node reference and replaces the typed #query token.
+  // Inserts the selected mock node reference and replaces the typed @query token.
   protected selectMention(node: MentionNode): void {
     if (!this.mentionRange) {
       return;
     }
 
-    const escapedTitle = this.escapeHtml(node.title);
-    const encodedNodeId = encodeURIComponent(node.id);
-    const nodeLink = `<a href="/node/${encodedNodeId}" class="node-page-link" data-node-id="${encodedNodeId}">#${escapedTitle}</a>&nbsp;`;
-
     this.editor
       .chain()
       .focus()
       .deleteRange(this.mentionRange)
-      .insertContent(nodeLink)
+      .insertKnowledgeMention({
+        nodeId: node.id,
+        title: node.title
+      })
+      .insertContent(' ')
       .run();
 
     this.mentionRange = null;
@@ -206,7 +224,7 @@ export class NodeEditorComponent implements OnDestroy {
     this.onEditorStateChange();
   }
 
-  // First slash command: switch into node-link mode by inserting # and opening mention flow.
+  // First slash command: switch into node-link mode by inserting @ and opening mention flow.
   protected runLinkNodeCommand(): void {
     if (!this.slashRange) {
       return;
@@ -216,20 +234,11 @@ export class NodeEditorComponent implements OnDestroy {
       .chain()
       .focus()
       .deleteRange(this.slashRange)
-      .insertContent('#')
+      .insertContent('@')
       .run();
 
     this.slashRange = null;
     this.onEditorStateChange();
-  }
-
-  private escapeHtml(value: string): string {
-    return value
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#39;');
   }
 
   // TipTap creates DOM/event subscriptions, so we destroy it when Angular tears down the component.

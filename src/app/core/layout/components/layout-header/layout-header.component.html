@@ -1,17 +1,10 @@
-<header class="border-b border-[var(--color-accent-muted)] bg-[var(--color-primary)] px-4 py-3 sm:px-6">
+<header class="fixed inset-x-0 top-0 z-40 w-full border-b border-accent-muted bg-primary px-4 py-3 sm:px-6">
   <div class="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-3">
-    <label class="sr-only" for="layout-header-search">Search nodes</label>
-    <input
-      id="layout-header-search"
-      type="search"
-      placeholder="Search..."
-      class="w-full max-w-xl rounded-md border border-[var(--color-accent-muted)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-primary)] placeholder:text-[var(--color-accent-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-active)]"
-      (input)="onSearchInput($event)"
-    />
+    <app-search-field (searchChange)="onSearchChange($event)"></app-search-field>
 
     <button
       type="button"
-      class="shrink-0 rounded-md border border-[var(--color-accent-active)] bg-[var(--color-accent-active)] px-3 py-2 text-sm font-semibold text-[var(--color-surface)] transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-[var(--color-surface)]"
+      class="shrink-0 rounded-md border border-accent-active bg-accent-active px-3 py-2 text-sm font-semibold text-surface transition hover:brightness-95 focus:outline-none focus:ring-2 focus-ring-surface"
       (click)="onNewNodeClick()"
     >
       + New Node

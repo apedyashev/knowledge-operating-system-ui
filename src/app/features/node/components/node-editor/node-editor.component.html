@@ -1,7 +1,7 @@
 <section aria-label="Node editor" class="w-full pb-6 pt-2">
-  <div class="mb-2 flex items-center justify-between text-[11px] text-[var(--color-primary)]/60">
+  <div class="mb-2 flex items-center justify-between text-[11px] text-primary-60">
     <p>Last edited just now</p>
-    <p>Type # to link nodes</p>
+    <p>Type @ to link nodes</p>
   </div>
 
   <div>
@@ -10,20 +10,11 @@
       id="node-title"
       type="text"
       [(ngModel)]="title"
-      (ngModelChange)="onEditorStateChange()"
-      class="w-full border-0 bg-transparent p-0 text-4xl font-semibold tracking-tight text-[var(--color-primary)] placeholder:text-[var(--color-accent-muted)] focus:outline-none"
+      (ngModelChange)="onTitleChange()"
+      class="w-full border-0 bg-transparent p-0 text-4xl font-semibold tracking-tight text-primary placeholder-accent-muted focus:outline-none"
       placeholder="Untitled"
     />
   </div>
-
-  <tiptap-floating-menu [editor]="editor" [shouldShow]="shouldShowFormattingMenu">
-    <div class="menu-surface ml-6 flex items-center gap-1.5 rounded-lg px-2 py-1.5 shadow-lg">
-      <button type="button" class="menu-btn" (click)="toggleHeading()">H2</button>
-      <button type="button" class="menu-btn" (click)="toggleBulletList()">Bullet</button>
-      <button type="button" class="menu-btn" (click)="toggleOrderedList()">Numbered</button>
-      <button type="button" class="menu-btn" (click)="toggleCodeBlock()">Code</button>
-    </div>
-  </tiptap-floating-menu>
 
   <tiptap-floating-menu [editor]="editor" [shouldShow]="shouldShowSlashMenu">
     <div class="slash-menu-surface ml-6 rounded-lg shadow-lg" role="listbox" aria-label="Command menu">
@@ -34,7 +25,7 @@
         role="option"
       >
         <span class="slash-menu-title">Link Node</span>
-        <span class="slash-menu-hint">Insert # to choose a node link</span>
+        <span class="slash-menu-hint">Insert @ to choose a node link</span>
       </button>
     </div>
   </tiptap-floating-menu>
@@ -48,7 +39,7 @@
           (click)="selectMention(node)"
           role="option"
         >
-          <span class="mention-menu-prefix">#</span>
+          <span class="mention-menu-prefix">@</span>
           <span>{{ node.title }}</span>
         </button>
       }
@@ -60,6 +51,9 @@
       <button type="button" class="menu-btn" (click)="toggleBold()">Bold</button>
       <button type="button" class="menu-btn" (click)="toggleItalic()">Italic</button>
       <button type="button" class="menu-btn" (click)="toggleHeading()">H2</button>
+      <button type="button" class="menu-btn" (click)="toggleBulletList()">Bullet</button>
+      <button type="button" class="menu-btn" (click)="toggleOrderedList()">Numbered</button>
+      <button type="button" class="menu-btn" (click)="toggleCodeBlock()">Code</button>
     </div>
   </tiptap-bubble-menu>
 

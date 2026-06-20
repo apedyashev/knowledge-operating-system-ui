@@ -1,0 +1,22 @@
+<label class="sr-only" for="layout-header-search">Search nodes</label>
+<input
+    #searchInput
+    id="layout-header-search"
+    type="search"
+    placeholder="⌘K to search nodes..."
+    [value]="searchTerm"
+    class="relative z-[1000]  max-w-xl rounded-md border border-accent-muted px-3 py-2 text-sm text-primary placeholder-accent-muted focus:outline-none focus:ring-2 focus-ring-accent-active"
+    [class]="backgroundClass"
+    (input)="onSearchInput($event)"
+    (focus)="onSearchInputFocus()"
+/>
+
+@if (shouldShowOverlay) {
+    <app-search-overlay (closeOverlay)="onCloseOverlay()" 
+        [recentSearches]="fakeRecentSearches" 
+        [searchResults]="searchResults"
+        [lastViewedNodes]="lastViewedNodes"
+        [showRecentSearches]="showRecentSearches"
+        (selectResult)="onSelectResult($event)"
+    ></app-search-overlay>
+}
