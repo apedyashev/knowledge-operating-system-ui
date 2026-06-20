@@ -59,7 +59,8 @@
               "buildTarget": "kos-ui:build:production"
             },
             "development": {
-              "buildTarget": "kos-ui:build:development"
+              "buildTarget": "kos-ui:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

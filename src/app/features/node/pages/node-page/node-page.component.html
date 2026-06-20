@@ -4,7 +4,11 @@
 		<app-left-panel />
 
 		<main class="p-4 text-primary" aria-label="Main panel">
-			<app-node-editor />
+			<app-node-editor
+				[initialTitle]="nodeTitle"
+				[initialContent]="nodeContent"
+				(nodeChange)="onNodeChange($event)"
+			/>
 		</main>
 
 		<app-right-panel />

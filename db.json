@@ -1,0 +1,34 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "title": "node 1",
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Lets test "
+              },
+              {
+                "type": "knowledgeMention",
+                "attrs": {
+                  "nodeId": "node-invoice-generation",
+                  "title": "Invoice Generation"
+                }
+              },
+              {
+                "type": "text",
+                "text": " mentions"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

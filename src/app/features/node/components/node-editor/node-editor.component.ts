@@ -1,16 +1,16 @@
-import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Editor } from '@tiptap/core';
+import { Editor, type JSONContent } from '@tiptap/core';
 import { EditorState } from '@tiptap/pm/state';
 import Placeholder from '@tiptap/extension-placeholder';
 import StarterKit from '@tiptap/starter-kit';
-import { debounceTime, Subject, Subscription } from 'rxjs';
 import {
   TiptapBubbleMenuDirective,
   TiptapEditorDirective,
   TiptapFloatingMenuDirective
 } from 'ngx-tiptap';
 import { KnowledgeMention } from './knowledge-mention';
+import { SaveNodePayload } from '../../models/node-save-payload.model';
 
 type MentionNode = {
   id: string;
@@ -25,17 +25,18 @@ type MentionNode = {
   styleUrl: './node-editor.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class NodeEditorComponent implements OnDestroy {
+export class NodeEditorComponent implements OnChanges, OnDestroy {
   private slashRange: { from: number; to: number } | null = null;
   private mentionRange: { from: number; to: number } | null = null;
 
-  private readonly changeEvents$ = new Subject<void>();
-  private readonly changeEventsSubscription: Subscription = this.changeEvents$
-    .pipe(debounceTime(850))
-    .subscribe(() => {
-      // Debouncing prevents noisy logs while the user is still typing quickly.
-      console.log('[NodeEditor] Draft changed', this.buildNodePayload());
-    });
+  @Input() initialTitle = '';
+  @Input() initialContent: JSONContent = {
+    type: 'doc',
+    content: []
+  };
+
+  // The editor emits pure state changes; persistence is orchestrated by the page container.
+  @Output() readonly nodeChange = new EventEmitter<SaveNodePayload>();
 
   // Title is stored separately from editor body so API payload matches backend contract.
   protected title = '';
@@ -79,6 +80,17 @@ export class NodeEditorComponent implements OnDestroy {
 
   protected mentionQuery = '';
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['initialTitle']) {
+      this.title = this.initialTitle;
+    }
+
+    if (changes['initialContent'] && this.initialContent) {
+      // Setting emitUpdate=false prevents autosave loops when data is loaded from the backend.
+      this.editor.commands.setContent(this.initialContent, { emitUpdate: false });
+    }
+  }
+
   protected get filteredMentionSuggestions(): MentionNode[] {
     const query = this.mentionQuery.trim().toLowerCase();
 
@@ -90,8 +102,8 @@ export class NodeEditorComponent implements OnDestroy {
   }
 
   // This returns the exact shape expected by node create/update APIs.
-  protected buildNodePayload(): { title: string; content: any } {
-    const content = this.editor.getJSON() as any;
+  protected buildNodePayload(): SaveNodePayload {
+    const content = this.editor.getJSON();
     const title = this.title.trim() || 'Untitled';
 
     return { title, content };
@@ -112,7 +124,7 @@ export class NodeEditorComponent implements OnDestroy {
 
   // We funnel every title/body change through one stream so debounce logic stays centralized.
   protected onEditorStateChange(): void {
-    this.changeEvents$.next();
+    this.nodeChange.emit(this.buildNodePayload());
   }
 
   // We hide the formatting menu while mention or slash menus are active to reduce overlap.
@@ -243,8 +255,6 @@ export class NodeEditorComponent implements OnDestroy {
 
   // TipTap creates DOM/event subscriptions, so we destroy it when Angular tears down the component.
   ngOnDestroy(): void {
-    this.changeEventsSubscription.unsubscribe();
-    this.changeEvents$.complete();
     this.editor.destroy();
   }
 
