@@ -3,7 +3,7 @@ import { Node, mergeAttributes } from '@tiptap/core';
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     knowledgeMention: {
-      insertKnowledgeMention: (attributes: { nodeId: string; title: string }) => ReturnType;
+      insertKnowledgeMention: (attributes: { nodeId: string; title: string; isStub?: boolean }) => ReturnType;
     };
   }
 }
@@ -31,6 +31,11 @@ export const KnowledgeMention = Node.create({
           return title ?? element.textContent?.replace(/^[@#]/, '') ?? '';
         },
         renderHTML: (attributes) => ({ 'data-title': attributes['title'] })
+      },
+      isStub: {
+        default: false,
+        parseHTML: (element) => element.getAttribute('data-is-stub') === 'true',
+        renderHTML: (attributes) => ({ 'data-is-stub': attributes['isStub'] ? 'true' : 'false' })
       }
     };
   },
@@ -49,22 +54,32 @@ export const KnowledgeMention = Node.create({
   renderHTML({ node, HTMLAttributes }) {
     const nodeId = encodeURIComponent(String(node.attrs['nodeId'] ?? ''));
     const title = String(node.attrs['title'] ?? '');
+    const isStub = !!node.attrs['isStub'];
 
     return [
       'a',
       mergeAttributes(HTMLAttributes, {
         href: `/node/${nodeId}`,
-        class: 'node-page-link',
+        class: isStub ? 'node-page-link node-page-link-stub' : 'node-page-link',
         'data-node-id': nodeId,
         'data-title': title,
+        'data-is-stub': isStub ? 'true' : 'false',
         contenteditable: 'false'
       }),
-      `@${title}`
+      [
+        'span',
+        {
+          class: 'node-page-link-icon',
+          'aria-hidden': 'true'
+        },
+        '↗'
+      ],
+      ['span', { class: 'node-page-link-title' }, title]
     ];
   },
 
   renderText({ node }) {
-    return `@${node.attrs['title']}`;
+    return `${node.attrs['title']}`;
   },
 
   addCommands() {

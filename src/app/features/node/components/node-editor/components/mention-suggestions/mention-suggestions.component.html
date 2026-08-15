@@ -1,0 +1,37 @@
+<div class="mention-menu-surface ml-6 rounded-lg shadow-lg" role="listbox" aria-label="Node mentions">
+  @if (canCreateNode) {
+    <button
+      type="button"
+      class="mention-menu-create"
+      [class.is-active]="activeIndex === 0"
+      (click)="onCreateNode()"
+      role="option"
+      [attr.aria-selected]="activeIndex === 0"
+    >
+      <span class="mention-menu-prefix">+</span>
+      <span>Create &quot;{{ query.trim() }}&quot;</span>
+    </button>
+  }
+
+  @if (filteredSuggestions.length === 0 && !canCreateNode) {
+    <p class="mention-menu-empty">No matching nodes</p>
+  } @else {
+    @for (node of filteredSuggestions; track node.id; let i = $index) {
+      <button
+        type="button"
+        class="mention-menu-item"
+        [class.is-stub]="!!node.isStub"
+        [class.is-active]="activeIndex === getOptionIndexForMention(i)"
+        (click)="onSelect(node)"
+        role="option"
+        [attr.aria-selected]="activeIndex === getOptionIndexForMention(i)"
+      >
+        <span class="mention-menu-prefix mention-menu-icon" aria-hidden="true">↗</span>
+        <span>{{ node.title }}</span>
+        @if (node.isStub) {
+          <span class="mention-stub-badge">STUB</span>
+        }
+      </button>
+    }
+  }
+</div>

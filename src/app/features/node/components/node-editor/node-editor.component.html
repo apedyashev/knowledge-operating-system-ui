@@ -1,7 +1,23 @@
 <section aria-label="Node editor" class="w-full pb-6 pt-2">
-  <div class="mb-2 flex items-center justify-between text-[11px] text-primary-60">
-    <p>Last edited just now</p>
-    <p>Type @ to link nodes</p>
+  <div class="mb-2 flex items-center justify-between gap-3 text-[11px] text-primary-60">
+    <div class="flex items-center gap-3">
+      <p>Last edited just now</p>
+      <p>Type @ to link nodes</p>
+    </div>
+
+    <button
+      type="button"
+      class="stub-toggle"
+      [class.is-active]="isStub"
+      [attr.aria-pressed]="isStub"
+      (click)="toggleStubStatus()"
+    >
+      <span class="stub-toggle-label">Node Status</span>
+      <span class="stub-toggle-value">{{ isStub ? 'STUB' : 'READY' }}</span>
+      <span class="stub-toggle-track" aria-hidden="true">
+        <span class="stub-toggle-thumb"></span>
+      </span>
+    </button>
   </div>
 
   <div>
@@ -31,19 +47,13 @@
   </tiptap-floating-menu>
 
   <tiptap-floating-menu [editor]="editor" [shouldShow]="shouldShowMentionMenu">
-    <div class="mention-menu-surface ml-6 rounded-lg shadow-lg" role="listbox" aria-label="Node mentions">
-      @for (node of filteredMentionSuggestions; track node) {
-        <button
-          type="button"
-          class="mention-menu-item"
-          (click)="selectMention(node)"
-          role="option"
-        >
-          <span class="mention-menu-prefix">@</span>
-          <span>{{ node.title }}</span>
-        </button>
-      }
-    </div>
+    <app-mention-suggestions
+      [suggestions]="mentionSuggestions"
+      [query]="mentionQuery"
+      [activeIndex]="mentionMenuActiveIndex"
+      (selectMention)="selectMention($event)"
+      (createNode)="onCreateMentionRequested($event)"
+    />
   </tiptap-floating-menu>
 
   <tiptap-bubble-menu [editor]="editor">
