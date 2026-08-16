@@ -25,7 +25,7 @@ export class NodeMentionSuggestionsService {
     // return of(this.mockSuggestions);
     return this.http
       .get<Array<{ id: string; title: string; isStub?: boolean }>>(`${this.baseUrl}/nodes`, {
-        params: { 'title:startsWith': title }
+        params: { search: title }
       })
       .pipe(
         map((nodes) =>

@@ -1,0 +1,46 @@
+<div class="knowledge-space-selector relative shrink-0">
+  <button
+    type="button"
+    class="flex items-center gap-2 rounded-md border border-accent-active bg-primary px-3 py-2 text-sm font-semibold text-surface transition hover:bg-accent-active focus:outline-none focus:ring-2 focus-ring-surface"
+    [attr.aria-expanded]="isMenuOpen"
+    aria-haspopup="menu"
+    (click)="toggleMenu()"
+  >
+    <span>{{ selectedKnowledgeSpace.name }}</span>
+    <span class="text-xs" aria-hidden="true">⌄</span>
+  </button>
+
+  @if (isMenuOpen) {
+    <div
+      class="absolute left-0 top-[calc(100%+0.5rem)] z-100 min-w-48 rounded-lg border border-accent-muted bg-white p-1.5 text-primary shadow-xl"
+      role="menu"
+      aria-label="Knowledge Spaces"
+    >
+      @for (space of knowledgeSpaces$ | async; track space) {
+        <button
+          type="button"
+          class="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition hover:bg-surface"
+          [class.bg-surface]="selectedKnowledgeSpace?.id === space.id"
+          role="menuitem"
+          (click)="selectKnowledgeSpace(space.id)"
+        >
+          <span>{{ space.name }}</span>
+          @if (selectedKnowledgeSpace.id === space.id) {
+            <span aria-hidden="true">✓</span>
+          }
+        </button>
+      }
+
+      <div class="my-1 border-t border-accent-muted" role="separator"></div>
+
+      <button
+        type="button"
+        class="flex w-full items-center rounded-md px-3 py-2 text-left text-sm font-semibold text-primary transition hover:bg-surface"
+        role="menuitem"
+        (click)="createKnowledgeSpace()"
+      >
+        + Erstelle neu
+      </button>
+    </div>
+  }
+</div>
