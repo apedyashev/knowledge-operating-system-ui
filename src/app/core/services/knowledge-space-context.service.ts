@@ -79,4 +79,8 @@ export class KnowledgeSpaceContextService {
 
     return primarySegments?.[0]?.path ?? '';
   }
+
+  getCurrentSpaceSlug(): string {
+    return this.readCurrentSpaceSlug();
+  }
 }

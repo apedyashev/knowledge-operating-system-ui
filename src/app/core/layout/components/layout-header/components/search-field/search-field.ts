@@ -1,5 +1,5 @@
 import _ from 'lodash';
-
+import { KnowledgeSpaceContextService } from '#core/services/knowledge-space-context.service';
 import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { SearchOverlay } from './components/search-overlay/search-overlay';
@@ -16,6 +16,7 @@ export class SearchField {
   private readonly nodeSearchService = inject(NodeSearchService);
   private readonly recentActivityService = inject(RecentActivityService);
   private readonly router = inject(Router);
+  private readonly knowledgeSpaceContextService = inject(KnowledgeSpaceContextService);
   
   @Output() searchChange = new EventEmitter<string>();
   // We keep a direct ref so keyboard shortcuts can focus the field from anywhere in the app shell.
@@ -102,7 +103,12 @@ export class SearchField {
       // recent serch term selected
       this.applyChangedSearchTerm(selected);
     } else if (selected && 'title' in selected) {
-      this.router.navigateByUrl(`/node/${selected.id}`);
+      this.router.navigate([
+        '/',
+        this.knowledgeSpaceContextService.getCurrentSpaceSlug(),
+        'node',
+        selected.id
+      ]);
       this.shouldShowOverlay = false;
       this.recentActivityService.addLastViewedNode(selected);
     }
