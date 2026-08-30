@@ -1,13 +1,19 @@
+@if (selectorState$ | async; as state) {
 <div class="knowledge-space-selector relative shrink-0">
   <button
     type="button"
-    class="flex items-center gap-2 rounded-md border border-accent-active bg-primary px-3 py-2 text-sm font-semibold text-surface transition hover:bg-accent-active focus:outline-none focus:ring-2 focus-ring-surface"
+    class="flex items-center gap-2 rounded-md border border-accent-active bg-primary px-3 py-2 text-sm font-semibold text-surface transition hover:bg-accent-active focus:outline-none focus:ring-2 focus-ring-surface cursor-pointer"
     [attr.aria-expanded]="isMenuOpen"
     aria-haspopup="menu"
     (click)="toggleMenu()"
   >
-    <span>{{ selectedKnowledgeSpace.name }}</span>
-    <span class="text-xs" aria-hidden="true">⌄</span>
+    <span>{{ state.selectedSpace?.name ?? 'Select Knowledge Space' }}</span>
+    <app-icon
+      class="transition-transform"
+      [class.rotate-180]="isMenuOpen"
+      name="chevron-down"
+      size="1rem"
+    ></app-icon>
   </button>
 
   @if (isMenuOpen) {
@@ -16,16 +22,16 @@
       role="menu"
       aria-label="Knowledge Spaces"
     >
-      @for (space of knowledgeSpaces$ | async; track space) {
+      @for (space of state.spaces; track space.id) {
         <button
           type="button"
-          class="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition hover:bg-surface"
-          [class.bg-surface]="selectedKnowledgeSpace?.id === space.id"
+          class="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition hover:bg-surface cursor-pointer"
+          [class.bg-surface]="state.selectedSpace?.id === space.id"
           role="menuitem"
-          (click)="selectKnowledgeSpace(space.id)"
+          (click)="selectKnowledgeSpace(space)"
         >
           <span>{{ space.name }}</span>
-          @if (selectedKnowledgeSpace.id === space.id) {
+          @if (state.selectedSpace?.id === space.id) {
             <span aria-hidden="true">✓</span>
           }
         </button>
@@ -35,12 +41,13 @@
 
       <button
         type="button"
-        class="flex w-full items-center rounded-md px-3 py-2 text-left text-sm font-semibold text-primary transition hover:bg-surface"
+        class="flex w-full items-center rounded-md px-3 py-2 text-left text-sm font-semibold text-primary transition hover:bg-surface cursor-pointer"
         role="menuitem"
         (click)="createKnowledgeSpace()"
       >
-        + Erstelle neu
+        Manage Spaces
       </button>
     </div>
   }
 </div>
+}

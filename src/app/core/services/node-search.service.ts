@@ -1,7 +1,6 @@
-import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable, of } from 'rxjs';
-import { API_BASE_URL } from '#app/core/config/api-base-url.token';
+import { map, Observable } from 'rxjs';
+import { ApiService } from './api.service';
 
 export type NodeSearchResult = {
   id: string;
@@ -12,11 +11,10 @@ export type NodeSearchResult = {
   providedIn: 'root'
 })
 export class NodeSearchService {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = inject(API_BASE_URL);
+  private readonly api = inject(ApiService);
 
   searchNodes(searchTerm: string): Observable<NodeSearchResult[]> {
-    return this.http.get<Array<{ id: string; title: string }>>(`${this.baseUrl}/nodes`, {
+    return this.api.get<Array<{ id: string; title: string }>>('nodes', {
       params: { search: searchTerm }
     }).pipe(
       map((nodes) => nodes.map((node) => ({ id: node.id, title: node.title })))

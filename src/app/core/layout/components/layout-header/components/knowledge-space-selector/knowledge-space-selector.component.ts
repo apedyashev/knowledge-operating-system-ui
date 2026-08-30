@@ -1,35 +1,31 @@
 import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, HostListener, inject } from '@angular/core';
-import { KnowledgeSpaceService, KnowledgeSpaceResult } from '#app/core/services/knowledge-space.service';
-import { map } from 'rxjs';
+import { KnowledgeSpaceResult } from '#app/core/services/knowledge-space.service';
+import { KnowledgeSpaceContextService } from '#app/core/services/knowledge-space-context.service';
+import { IconComponent } from '#app/core/ui/components/icon/icon.component';
 
 @Component({
   selector: 'app-knowledge-space-selector',
   standalone: true,
-  imports: [AsyncPipe],
+  imports: [AsyncPipe, IconComponent],
   templateUrl: './knowledge-space-selector.component.html',
   styleUrls: ['./knowledge-space-selector.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class KnowledgeSpaceSelectorComponent {
-private readonly knowledgeSpacesService = inject(KnowledgeSpaceService);
-  protected readonly knowledgeSpaces$ = this.knowledgeSpacesService.loadKnowledgeSpaces();
-  protected selectedKnowledgeSpace: KnowledgeSpaceResult = { id: '', name: 'Select Knowledge Space' };
+  private readonly knowledgeSpaceContext = inject(KnowledgeSpaceContextService);
+
+  // The component consumes the derived state; it does not know how API data and URL state are combined.
+  protected readonly selectorState$ = this.knowledgeSpaceContext.selectorState$;
   protected isMenuOpen = false;
 
   protected toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }
 
-  protected selectKnowledgeSpace(spaceId: string): void {
-    this.knowledgeSpaces$.pipe(
-      map(spaces => spaces.find(space => space.id === spaceId)  )
-    ).subscribe(space => {
-        if (space) {
-          this.selectedKnowledgeSpace = space;
-        }
-        this.isMenuOpen = false;
-    });
+  protected selectKnowledgeSpace(space: KnowledgeSpaceResult): void {
+    this.isMenuOpen = false;
+    this.knowledgeSpaceContext.selectSpace(space);
   }
 
   protected createKnowledgeSpace(): void {
