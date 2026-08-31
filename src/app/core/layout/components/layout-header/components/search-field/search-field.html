@@ -13,9 +13,9 @@
 
 @if (shouldShowOverlay) {
     <app-search-overlay (closeOverlay)="onCloseOverlay()" 
-        [recentSearches]="fakeRecentSearches" 
-        [searchResults]="searchResults"
-        [lastViewedNodes]="lastViewedNodes"
+        [recentSearches]="(recentSearches$ | async) || []" 
+        [searchResults]="(searchResults$ | async) || []"
+        [lastViewedNodes]="(lastViewedNodes$ | async) || []"
         [showRecentSearches]="showRecentSearches"
         (selectResult)="onSelectResult($event)"
     ></app-search-overlay>

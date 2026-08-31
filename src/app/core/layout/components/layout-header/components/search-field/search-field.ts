@@ -1,15 +1,17 @@
-import _ from 'lodash';
 import { KnowledgeSpaceContextService } from '#core/services/knowledge-space-context.service';
 import { Component, ElementRef, EventEmitter, HostListener, Output, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { SearchOverlay } from './components/search-overlay/search-overlay';
 import { NodeSearchService, NodeSearchResult } from '#core/services/node-search.service';
 import { RecentActivityService } from '#core/services/recent-activity.service';
+import { map, debounceTime, distinctUntilChanged, switchMap, catchError, tap } from 'rxjs/operators';
+import { of } from 'rxjs';
+import {AsyncPipe} from '@angular/common'
 
 @Component({
   selector: 'app-search-field',
   standalone: true,
-  imports: [SearchOverlay],
+  imports: [AsyncPipe, SearchOverlay],
   templateUrl: './search-field.html',
 })
 export class SearchField {
@@ -22,32 +24,37 @@ export class SearchField {
   // We keep a direct ref so keyboard shortcuts can focus the field from anywhere in the app shell.
   @ViewChild('searchInput') searchInputRef?: ElementRef<HTMLInputElement>;
 
+  private readonly searchTerm$ = new EventEmitter<string>();
   shouldShowOverlay = false;
   activeResultIndex = -1;  
   searchTerm = '';
-  lastViewedNodes = this.recentActivityService.getLastViewedNodes();
+  lastViewedNodes$ = this.recentActivityService.lastViewedNodes$
+  recentSearches$ = this.recentActivityService.recentSearches$
   
-  fakeRecentSearches = this.recentActivityService.getRecentSearches();
   searchResults: NodeSearchResult[] = [];
+
+  readonly searchResults$ = this.searchTerm$.pipe(
+    map((term)=> term.trim()),
+    debounceTime(500),
+    // do not emit if current value is the same as previous one
+    distinctUntilChanged(),
+    // we want to return a new observable
+    switchMap((term) => {
+      return term === '' ? of([]) : this.nodeSearchService.searchNodes(term).pipe(
+        tap(() => {
+          this.recentActivityService.addRecentSearch(term)
+        }),
+        catchError(() => of([]))
+      )
+    })
+  )
   
   // We emit text changes so parent containers can decide how search state is stored.
   onSearchInput(event: Event): void {
-    _.debounce(() => {
-      const input = event.target as HTMLInputElement;
-      this.applyChangedSearchTerm(input.value);
-    }, 500)();
-    // const input = event.target as HTMLInputElement;
-    // this.applyChangedSearchTerm(input.value);
+    const input = event.target as HTMLInputElement;
+    this.searchTerm = input.value
+    this.searchTerm$.next(this.searchTerm)
   }
-
-  debouncedSearch = _.debounce((term: string) => {
-    console.log('Performing search for term:', term);
-    this.nodeSearchService.searchNodes(term).subscribe((results) => {
-      console.log('Search results received:', results);
-      this.searchResults = results;
-      this.recentActivityService.addRecentSearch(term);
-    });
-  }, 500);
 
   onSearchInputFocus(): void {
     this.showOverlay();
@@ -55,15 +62,6 @@ export class SearchField {
 
   onCloseOverlay(): void {
     this.shouldShowOverlay = false;
-  }
-
-  applyChangedSearchTerm(term: string): void {
-    this.searchTerm = term;
-    this.searchChange.emit(this.searchTerm);
-    this.debouncedSearch(this.searchTerm);
-    // this.nodeSearchService.searchNodes(this.searchTerm).subscribe((results) => {
-    //   this.searchResults = results;
-    // });
   }
 
   get backgroundClass(): string {
@@ -76,8 +74,6 @@ export class SearchField {
 
   showOverlay(): void {
     this.shouldShowOverlay = true;
-    this.lastViewedNodes = this.recentActivityService.getLastViewedNodes();
-    console.log('Showing search overlay', this.lastViewedNodes);
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -101,7 +97,8 @@ export class SearchField {
   onSelectResult(selected: string | NodeSearchResult): void {
     if (typeof selected === 'string') {
       // recent serch term selected
-      this.applyChangedSearchTerm(selected);
+      this.searchTerm$.next(selected)
+      // this.applyChangedSearchTerm(selected);
     } else if (selected && 'title' in selected) {
       this.router.navigate([
         '/',

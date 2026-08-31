@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { NodeSearchResult } from '#core/services/node-search.service';
+import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-search-overlay',

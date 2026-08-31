@@ -1,30 +1,52 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RecentActivityService {
-  getRecentSearches(): string[] {
-    const recentSearches = localStorage.getItem('recentSearches');
-    return recentSearches ? JSON.parse(recentSearches) : [];
+  // internal subjects to manage state
+  private readonly recentSearchesSubject =  new BehaviorSubject<string[]>(this.readRecentSearches())
+  private readonly lastViewedNodesSubject =  new BehaviorSubject<{ id: string; title: string }[]>(this.readLastViewedNodes())
+
+  // external readonly interface to consume data
+  readonly recentSearches$ = this.recentSearchesSubject.asObservable()
+  readonly lastViewedNodes$ = this.lastViewedNodesSubject.asObservable()
+
+  private readRecentSearches(): string[] {
+    try {
+      const recentSearches = localStorage.getItem('recentSearches');
+      return recentSearches ? JSON.parse(recentSearches) : [];
+    } catch {
+      return []
+    }
   }
 
   addRecentSearch(searchTerm: string): void {
-    const recentSearches = this.getRecentSearches();
+    const normalisedTerm = searchTerm.trim()
+    if (!normalisedTerm) {
+      return;
+    }
 
-    if (!recentSearches.includes(searchTerm) && recentSearches.length < 5) {
-      recentSearches.push(searchTerm);
-      localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+    const updatedSearches =  [
+      normalisedTerm, 
+      ...this.recentSearchesSubject.value.filter((term) => term !== normalisedTerm)
+    ].slice(0, 5)
+    localStorage.setItem('recentSearches', JSON.stringify(updatedSearches));
+    this.recentSearchesSubject.next(updatedSearches)
+  }
+  
+  private readLastViewedNodes(): { id: string; title: string }[] {
+    try {
+    const lastViewedNodes = localStorage.getItem('lastViewedNodes');
+    return lastViewedNodes ? JSON.parse(lastViewedNodes) : [];
+    } catch {
+      return []
     }
   }
   
-  getLastViewedNodes(): { id: string; title: string }[] {
-    const lastViewedNodes = localStorage.getItem('lastViewedNodes');
-    return lastViewedNodes ? JSON.parse(lastViewedNodes) : [];
-  }
-
   addLastViewedNode(node: { id: string; title: string }): void {
-    const lastViewedNodes = this.getLastViewedNodes();
+    const lastViewedNodes = this.readLastViewedNodes();
 
     console.log('Adding last viewed node:', node);
     // Remove the node if it already exists to avoid duplicates
@@ -42,7 +64,7 @@ export class RecentActivityService {
     }
 
     localStorage.setItem('lastViewedNodes', JSON.stringify(lastViewedNodes));
+
+    this.lastViewedNodesSubject.next(lastViewedNodes)
   }
-
-
 }
