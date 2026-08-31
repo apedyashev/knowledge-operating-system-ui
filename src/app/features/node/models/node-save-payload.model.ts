@@ -1,7 +1,7 @@
 import type { JSONContent } from '@tiptap/core';
 
-export type SaveNodePayload = {
+export interface SaveNodePayload {
   title: string;
   content: JSONContent;
   isStub?: boolean;
-};
+}

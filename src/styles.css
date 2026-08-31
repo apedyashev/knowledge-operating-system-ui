@@ -1,74 +1,75 @@
 /* You can add global styles to this file, and also import other style files */
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
-	--color-primary: #5261a3;
-	--color-surface: #dde0ee;
-	--color-accent-muted: #a0a9cf;
-	--color-accent-active: #65a6c3;
+  --color-primary: #5261a3;
+  --color-surface: #dde0ee;
+  --color-accent-muted: #a0a9cf;
+  --color-accent-active: #65a6c3;
 }
 
 /* Semantic color utilities for app-specific tokens. */
 .border-accent-muted {
-	border-color: var(--color-accent-muted);
+  border-color: var(--color-accent-muted);
 }
 
 .border-accent-active {
-	border-color: var(--color-accent-active);
+  border-color: var(--color-accent-active);
 }
 
 .bg-surface {
-	background-color: var(--color-surface);
+  background-color: var(--color-surface);
 }
 
 .bg-primary {
-	background-color: var(--color-primary);
+  background-color: var(--color-primary);
 }
 
 .bg-accent-active {
-	background-color: var(--color-accent-active);
+  background-color: var(--color-accent-active);
 }
 
 .text-primary {
-	color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .text-primary-85 {
-	color: color-mix(in srgb, var(--color-primary) 85%, transparent);
+  color: color-mix(in srgb, var(--color-primary) 85%, transparent);
 }
 
 .text-primary-70 {
-	color: color-mix(in srgb, var(--color-primary) 70%, transparent);
+  color: color-mix(in srgb, var(--color-primary) 70%, transparent);
 }
 
 .text-primary-60 {
-	color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+  color: color-mix(in srgb, var(--color-primary) 60%, transparent);
 }
 
 .text-surface {
-	color: var(--color-surface);
+  color: var(--color-surface);
 }
 
 .text-accent-active {
-	color: var(--color-accent-active);
+  color: var(--color-accent-active);
 }
 
 .placeholder-accent-muted::placeholder {
-	color: var(--color-accent-muted);
+  color: var(--color-accent-muted);
 }
 
 .focus-ring-accent-active:focus {
-	--tw-ring-color: var(--color-accent-active);
+  --tw-ring-color: var(--color-accent-active);
 }
 
 .focus-ring-surface:focus {
-	--tw-ring-color: var(--color-surface);
+  --tw-ring-color: var(--color-surface);
 }
 
 .hover-bg-accent-muted-35:hover {
-	background-color: color-mix(in srgb, var(--color-accent-muted) 35%, transparent);
+  background-color: color-mix(in srgb, var(--color-accent-muted) 35%, transparent);
 }
 
-.hover-bg-accent-muted-30:hover, .bg-accent-muted-30 {
-	background-color: color-mix(in srgb, var(--color-accent-muted) 30%, transparent);
+.hover-bg-accent-muted-30:hover,
+.bg-accent-muted-30 {
+  background-color: color-mix(in srgb, var(--color-accent-muted) 30%, transparent);
 }

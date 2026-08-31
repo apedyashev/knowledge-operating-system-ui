@@ -1,8 +1,8 @@
-import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import type { Observable } from 'rxjs';
 
 import { ApiService } from '../../../core/services/api.service';
-import { SaveNodePayload } from '../models/node-save-payload.model';
+import type { SaveNodePayload } from '../models/node-save-payload.model';
 
 export type NodeResponse = SaveNodePayload & {
   id: string;
@@ -14,7 +14,7 @@ export type NodeResponse = SaveNodePayload & {
 };
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NodeApiService {
   private readonly api = inject(ApiService);

@@ -3,7 +3,11 @@ import { Node, mergeAttributes } from '@tiptap/core';
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     knowledgeMention: {
-      insertKnowledgeMention: (attributes: { nodeId: string; title: string; isStub?: boolean }) => ReturnType;
+      insertKnowledgeMention: (attributes: {
+        nodeId: string;
+        title: string;
+        isStub?: boolean;
+      }) => ReturnType;
     };
   }
 }
@@ -21,7 +25,7 @@ export const KnowledgeMention = Node.create({
       nodeId: {
         default: null,
         parseHTML: (element) => element.getAttribute('data-node-id'),
-        renderHTML: (attributes) => ({ 'data-node-id': attributes['nodeId'] })
+        renderHTML: (attributes) => ({ 'data-node-id': attributes['nodeId'] }),
       },
       title: {
         default: '',
@@ -30,31 +34,31 @@ export const KnowledgeMention = Node.create({
 
           return title ?? element.textContent?.replace(/^[@#]/, '') ?? '';
         },
-        renderHTML: (attributes) => ({ 'data-title': attributes['title'] })
+        renderHTML: (attributes) => ({ 'data-title': attributes['title'] }),
       },
       isStub: {
         default: false,
         parseHTML: (element) => element.getAttribute('data-is-stub') === 'true',
-        renderHTML: (attributes) => ({ 'data-is-stub': attributes['isStub'] ? 'true' : 'false' })
-      }
+        renderHTML: (attributes) => ({ 'data-is-stub': attributes['isStub'] ? 'true' : 'false' }),
+      },
     };
   },
 
   parseHTML() {
     return [
       {
-        tag: 'a[data-node-id]'
+        tag: 'a[data-node-id]',
       },
       {
-        tag: 'span[data-node-id]'
-      }
+        tag: 'span[data-node-id]',
+      },
     ];
   },
 
   renderHTML({ node, HTMLAttributes }) {
     const nodeId = encodeURIComponent(String(node.attrs['nodeId'] ?? ''));
     const title = String(node.attrs['title'] ?? '');
-    const isStub = !!node.attrs['isStub'];
+    const isStub = Boolean(node.attrs['isStub']);
 
     return [
       'a',
@@ -64,17 +68,17 @@ export const KnowledgeMention = Node.create({
         'data-node-id': nodeId,
         'data-title': title,
         'data-is-stub': isStub ? 'true' : 'false',
-        contenteditable: 'false'
+        contenteditable: 'false',
       }),
       [
         'span',
         {
           class: 'node-page-link-icon',
-          'aria-hidden': 'true'
+          'aria-hidden': 'true',
         },
-        '↗'
+        '↗',
       ],
-      ['span', { class: 'node-page-link-title' }, title]
+      ['span', { class: 'node-page-link-title' }, title],
     ];
   },
 
@@ -89,8 +93,8 @@ export const KnowledgeMention = Node.create({
         ({ commands }) =>
           commands.insertContent({
             type: this.name,
-            attrs: attributes
-          })
+            attrs: attributes,
+          }),
     };
-  }
+  },
 });

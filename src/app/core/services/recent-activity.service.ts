@@ -6,45 +6,47 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class RecentActivityService {
   // internal subjects to manage state
-  private readonly recentSearchesSubject =  new BehaviorSubject<string[]>(this.readRecentSearches())
-  private readonly lastViewedNodesSubject =  new BehaviorSubject<{ id: string; title: string }[]>(this.readLastViewedNodes())
+  private readonly recentSearchesSubject = new BehaviorSubject<string[]>(this.readRecentSearches());
+  private readonly lastViewedNodesSubject = new BehaviorSubject<
+    Array<{ id: string; title: string }>
+  >(this.readLastViewedNodes());
 
   // external readonly interface to consume data
-  readonly recentSearches$ = this.recentSearchesSubject.asObservable()
-  readonly lastViewedNodes$ = this.lastViewedNodesSubject.asObservable()
+  readonly recentSearches$ = this.recentSearchesSubject.asObservable();
+  readonly lastViewedNodes$ = this.lastViewedNodesSubject.asObservable();
 
   private readRecentSearches(): string[] {
     try {
       const recentSearches = localStorage.getItem('recentSearches');
       return recentSearches ? JSON.parse(recentSearches) : [];
     } catch {
-      return []
+      return [];
     }
   }
 
   addRecentSearch(searchTerm: string): void {
-    const normalisedTerm = searchTerm.trim()
+    const normalisedTerm = searchTerm.trim();
     if (!normalisedTerm) {
       return;
     }
 
-    const updatedSearches =  [
-      normalisedTerm, 
-      ...this.recentSearchesSubject.value.filter((term) => term !== normalisedTerm)
-    ].slice(0, 5)
+    const updatedSearches = [
+      normalisedTerm,
+      ...this.recentSearchesSubject.value.filter((term) => term !== normalisedTerm),
+    ].slice(0, 5);
     localStorage.setItem('recentSearches', JSON.stringify(updatedSearches));
-    this.recentSearchesSubject.next(updatedSearches)
+    this.recentSearchesSubject.next(updatedSearches);
   }
-  
-  private readLastViewedNodes(): { id: string; title: string }[] {
+
+  private readLastViewedNodes(): Array<{ id: string; title: string }> {
     try {
-    const lastViewedNodes = localStorage.getItem('lastViewedNodes');
-    return lastViewedNodes ? JSON.parse(lastViewedNodes) : [];
+      const lastViewedNodes = localStorage.getItem('lastViewedNodes');
+      return lastViewedNodes ? JSON.parse(lastViewedNodes) : [];
     } catch {
-      return []
+      return [];
     }
   }
-  
+
   addLastViewedNode(node: { id: string; title: string }): void {
     const lastViewedNodes = this.readLastViewedNodes();
 
@@ -65,6 +67,6 @@ export class RecentActivityService {
 
     localStorage.setItem('lastViewedNodes', JSON.stringify(lastViewedNodes));
 
-    this.lastViewedNodesSubject.next(lastViewedNodes)
+    this.lastViewedNodesSubject.next(lastViewedNodes);
   }
 }

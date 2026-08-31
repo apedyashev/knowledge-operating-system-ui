@@ -8,12 +8,7 @@
       "#*": ["./src/*"],
       "#core/*": ["./src/app/core/*"]
     },
-    "types": [
-      "jasmine"
-    ]
+    "types": ["jasmine"]
   },
-  "include": [
-    "src/**/*.d.ts",
-    "src/**/*.spec.ts"
-  ]
+  "include": ["src/**/*.d.ts", "src/**/*.spec.ts"]
 }

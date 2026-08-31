@@ -3,7 +3,9 @@
   aria-label="Node navigation"
 >
   <div class="mb-5">
-    <h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-accent-active">Recent Nodes</h2>
+    <h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-accent-active">
+      Recent Nodes
+    </h2>
     <ul class="space-y-1.5 text-sm">
       @for (node of recentNodes; track node) {
         <li>
@@ -22,9 +24,7 @@
     <h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-accent-active">Tags</h2>
     <ul class="flex flex-wrap gap-2 text-xs">
       @for (tag of tags; track tag) {
-        <li class="rounded-full border border-accent-muted px-2 py-1 text-primary">
-          #{{ tag }}
-        </li>
+        <li class="rounded-full border border-accent-muted px-2 py-1 text-primary">#{{ tag }}</li>
       }
     </ul>
   </div>
@@ -34,7 +34,9 @@
     <ul class="space-y-1.5 text-sm">
       @for (filter of filters; track filter) {
         <li>
-          <label class="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover-bg-accent-muted-35">
+          <label
+            class="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 hover-bg-accent-muted-35"
+          >
             <input
               type="checkbox"
               class="h-4 w-4 rounded border-accent-muted text-accent-active focus-ring-accent-active"

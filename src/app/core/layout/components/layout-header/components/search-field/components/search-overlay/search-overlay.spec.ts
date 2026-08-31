@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import type { ComponentFixture } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 import { SearchOverlay } from './search-overlay';
 
@@ -8,9 +9,8 @@ describe('SearchOverlay', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SearchOverlay]
-    })
-    .compileComponents();
+      imports: [SearchOverlay],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SearchOverlay);
     component = fixture.componentInstance;

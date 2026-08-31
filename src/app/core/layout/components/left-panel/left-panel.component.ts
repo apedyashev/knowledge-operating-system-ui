@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   selector: 'app-left-panel',
   standalone: true,
   templateUrl: './left-panel.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LeftPanelComponent {
   // These arrays are temporary mock data so the left navigation can be built
@@ -13,7 +13,7 @@ export class LeftPanelComponent {
     'Billing',
     'Refunds',
     'Retry Logic',
-    'Invoice Generation'
+    'Invoice Generation',
   ];
 
   protected readonly tags: string[] = ['billing', 'payments', 'architecture', 'ops'];

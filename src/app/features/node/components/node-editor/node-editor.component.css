@@ -15,7 +15,9 @@
   font-weight: 600;
   line-height: 1;
   padding: 0.4rem 0.55rem;
-  transition: background-color 120ms ease, border-color 120ms ease;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
 }
 
 .menu-btn:hover {
@@ -69,7 +71,10 @@
   display: inline-flex;
   gap: 0.45rem;
   padding: 0.2rem 0.3rem 0.2rem 0.55rem;
-  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
 }
 
 .stub-toggle:hover {
@@ -196,8 +201,12 @@
   padding: 0.1rem 0.52rem;
   text-decoration: none;
   z-index: 1;
-  transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease,
-    color 160ms ease, transform 160ms ease;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 :host ::ng-deep .notion-editor-content a.node-page-link:hover {
@@ -245,7 +254,11 @@
   color: color-mix(in srgb, #c2410c 82%, black);
 }
 
-:host ::ng-deep .notion-editor-content a.node-page-link.node-page-link-stub .node-page-link-title::after {
+:host
+  ::ng-deep
+  .notion-editor-content
+  a.node-page-link.node-page-link-stub
+  .node-page-link-title::after {
   border: 1px solid color-mix(in srgb, #f59e0b 55%, white);
   border-radius: 999px;
   content: 'STUB';
@@ -277,7 +290,9 @@
   top: calc(100% + 0.45rem);
   transform: translateY(6px) scale(0.985);
   transform-origin: top left;
-  transition: opacity 150ms ease, transform 170ms ease;
+  transition:
+    opacity 150ms ease,
+    transform 170ms ease;
   white-space: normal;
   z-index: 60;
 }

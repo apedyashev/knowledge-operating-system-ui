@@ -1,7 +1,8 @@
 import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, HostListener, inject } from '@angular/core';
-import { KnowledgeSpaceResult } from '#app/core/services/knowledge-space.service';
+
 import { KnowledgeSpaceContextService } from '#app/core/services/knowledge-space-context.service';
+import type { KnowledgeSpaceResult } from '#app/core/services/knowledge-space.service';
 import { IconComponent } from '#app/core/ui/components/icon/icon.component';
 
 @Component({
@@ -10,7 +11,7 @@ import { IconComponent } from '#app/core/ui/components/icon/icon.component';
   imports: [AsyncPipe, IconComponent],
   templateUrl: './knowledge-space-selector.component.html',
   styleUrls: ['./knowledge-space-selector.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KnowledgeSpaceSelectorComponent {
   private readonly knowledgeSpaceContext = inject(KnowledgeSpaceContextService);
@@ -45,6 +46,4 @@ export class KnowledgeSpaceSelectorComponent {
   protected onEscapeKey(): void {
     this.isMenuOpen = false;
   }
-
-  
 }

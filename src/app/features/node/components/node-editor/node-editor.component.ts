@@ -1,45 +1,54 @@
+import type { OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
   Output,
   ViewChild,
-  SimpleChanges,
-  inject
+  inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Editor, type JSONContent } from '@tiptap/core';
-import { EditorState } from '@tiptap/pm/state';
 import Placeholder from '@tiptap/extension-placeholder';
+import type { EditorState } from '@tiptap/pm/state';
 import StarterKit from '@tiptap/starter-kit';
-import { catchError, debounceTime, distinctUntilChanged, of, Subject, Subscription, switchMap, take } from 'rxjs';
 import {
   TiptapBubbleMenuDirective,
   TiptapEditorDirective,
-  TiptapFloatingMenuDirective
+  TiptapFloatingMenuDirective,
 } from 'ngx-tiptap';
-import { Router } from '@angular/router';
-import { KnowledgeMention } from './knowledge-mention';
+import {
+  Subject,
+  Subscription,
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  of,
+  switchMap,
+  take,
+} from 'rxjs';
+
 import { MentionSuggestionsComponent } from '#app/features/node/components/node-editor/components/mention-suggestions/mention-suggestions.component';
-import { MentionNode } from '../../models/mention-node.model';
-import { SaveNodePayload } from '../../models/node-save-payload.model';
+
+import type { MentionNode } from '../../models/mention-node.model';
+import type { SaveNodePayload } from '../../models/node-save-payload.model';
+import type { NodeResponse } from '../../services/node-api.service';
+import { NodeApiService } from '../../services/node-api.service';
 import { NodeMentionSuggestionsService } from '../../services/node-mention-suggestions.service';
-import { NodeApiService, NodeResponse } from '../../services/node-api.service';
+import { KnowledgeMention } from './knowledge-mention';
 
 type MentionMenuOption =
   | {
-    kind: 'create';
-    title: string;
-  }
+      kind: 'create';
+      title: string;
+    }
   | {
-    kind: 'existing';
-    node: MentionNode;
-  };
+      kind: 'existing';
+      node: MentionNode;
+    };
 
 @Component({
   selector: 'app-node-editor',
@@ -49,11 +58,11 @@ type MentionMenuOption =
     TiptapEditorDirective,
     TiptapBubbleMenuDirective,
     TiptapFloatingMenuDirective,
-    MentionSuggestionsComponent
+    MentionSuggestionsComponent,
   ],
   templateUrl: './node-editor.component.html',
   styleUrl: './node-editor.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
   private slashRange: { from: number; to: number } | null = null;
@@ -73,7 +82,7 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() initialIsStub = false;
   @Input() initialContent: JSONContent = {
     type: 'doc',
-    content: []
+    content: [],
   };
 
   // The editor emits pure state changes; persistence is orchestrated by the page container.
@@ -103,8 +112,8 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
           }
 
           return "Type '/' for commands";
-        }
-      })
+        },
+      }),
     ],
     editorProps: {
       // This keeps the Blueprint shortcut working: Ctrl/Cmd + Space opens the mention picker by inserting '@'.
@@ -151,12 +160,12 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
         mouseover: (_view, event) => {
           this.onMentionChipHover(event);
           return false;
-        }
+        },
       },
       attributes: {
-        class: 'notion-editor-content text-slate-800 focus:outline-none'
-      }
-    }
+        class: 'notion-editor-content text-slate-800 focus:outline-none',
+      },
+    },
   });
 
   // Keeping the content as HTML makes it easy to send to the backend in MVP.
@@ -180,11 +189,7 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     event.preventDefault();
 
-    this.editor
-      .chain()
-      .focus()
-      .insertContent('@')
-      .run();
+    this.editor.chain().focus().insertContent('@').run();
 
     this.onEditorStateChange();
     return true;
@@ -200,9 +205,9 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
             catchError((error) => {
               console.error('[NodeEditor] Failed to load mention suggestions', error);
               return of([] as MentionNode[]);
-            })
-          )
-        )
+            }),
+          ),
+        ),
       )
       .subscribe((suggestions) => {
         this.mentionSuggestions = suggestions;
@@ -217,7 +222,7 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     if (changes['initialIsStub']) {
-      this.isStub = !!this.initialIsStub;
+      this.isStub = Boolean(this.initialIsStub);
     }
 
     if (changes['initialContent'] && this.initialContent) {
@@ -235,15 +240,15 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
 
   private prefetchMentionChipMetadata(): void {
     const renderedChips = Array.from(
-      this.editor.view.dom.querySelectorAll('a.node-page-link[data-node-id]')
+      this.editor.view.dom.querySelectorAll('a.node-page-link[data-node-id]'),
     ) as HTMLElement[];
 
     const uniqueNodeIds = Array.from(
       new Set(
         renderedChips
           .map((chip) => chip.dataset['nodeId']?.trim() ?? '')
-          .filter((nodeId) => !!nodeId)
-      )
+          .filter((nodeId) => Boolean(nodeId)),
+      ),
     );
 
     for (const nodeId of uniqueNodeIds) {
@@ -258,14 +263,14 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
         .loadNode(nodeId)
         .pipe(
           take(1),
-          catchError(() => of(null as NodeResponse | null))
+          catchError(() => of(null as NodeResponse | null)),
         )
         .subscribe((node) => {
           if (!node) {
             return;
           }
 
-          const isStub = !!node.isStub;
+          const isStub = Boolean(node.isStub);
           this.mentionStubStateCache.set(nodeId, isStub);
           this.mentionContentCache.set(nodeId, this.extractNodeContent(node));
           this.applyStubStateToRenderedChips(nodeId, isStub);
@@ -277,7 +282,7 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
 
   private applyStubStateToRenderedChips(nodeId: string, isStub: boolean): void {
     const renderedChips = Array.from(
-      this.editor.view.dom.querySelectorAll('a.node-page-link[data-node-id]')
+      this.editor.view.dom.querySelectorAll('a.node-page-link[data-node-id]'),
     ) as HTMLElement[];
 
     for (const chip of renderedChips) {
@@ -372,7 +377,7 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
     const rawSlash = lastToken;
     this.slashRange = {
       from: from - rawSlash.length,
-      to: from
+      to: from,
     };
 
     return true;
@@ -409,7 +414,7 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
     const rawMention = `@${mentionMatch[2]}`;
     this.mentionRange = {
       from: from - rawMention.length,
-      to: from
+      to: from,
     };
     this.updateMentionQuery(mentionMatch[2]);
     this.clampMentionMenuActiveIndex();
@@ -439,7 +444,8 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
         event.preventDefault();
 
         if (options.length > 0) {
-          this.mentionMenuActiveIndex = (this.mentionMenuActiveIndex - 1 + options.length) % options.length;
+          this.mentionMenuActiveIndex =
+            (this.mentionMenuActiveIndex - 1 + options.length) % options.length;
           this.changeDetectorRef.markForCheck();
         }
 
@@ -496,25 +502,29 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
     const normalizedQuery = this.mentionQuery.trim().toLowerCase();
     const filteredSuggestions = !normalizedQuery
       ? this.mentionSuggestions
-      : this.mentionSuggestions.filter((node) => node.title.toLowerCase().includes(normalizedQuery));
+      : this.mentionSuggestions.filter((node) =>
+          node.title.toLowerCase().includes(normalizedQuery),
+        );
 
     const options: MentionMenuOption[] = [];
     const trimmedQuery = this.mentionQuery.trim();
     const canCreateNode =
-      !!trimmedQuery &&
-      !this.mentionSuggestions.some((node) => node.title.trim().toLowerCase() === trimmedQuery.toLowerCase());
+      Boolean(trimmedQuery) &&
+      !this.mentionSuggestions.some(
+        (node) => node.title.trim().toLowerCase() === trimmedQuery.toLowerCase(),
+      );
 
     if (canCreateNode) {
       options.push({
         kind: 'create',
-        title: trimmedQuery
+        title: trimmedQuery,
       });
     }
 
     for (const node of filteredSuggestions) {
       options.push({
         kind: 'existing',
-        node
+        node,
       });
     }
 
@@ -552,7 +562,7 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
         catchError((error) => {
           console.error('[NodeEditor] Failed to load mention content', error);
           return of(null as NodeResponse | null);
-        })
+        }),
       )
       .subscribe((node) => {
         const contentPreview = node ? this.extractNodeContent(node) : 'Content unavailable.';
@@ -665,7 +675,7 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
       .insertKnowledgeMention({
         nodeId: node.id,
         title: node.title,
-        isStub: !!node.isStub
+        isStub: Boolean(node.isStub),
       })
       .insertContent(' ')
       .run();
@@ -681,12 +691,7 @@ export class NodeEditorComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    this.editor
-      .chain()
-      .focus()
-      .deleteRange(this.slashRange)
-      .insertContent('@')
-      .run();
+    this.editor.chain().focus().deleteRange(this.slashRange).insertContent('@').run();
 
     this.slashRange = null;
     this.onEditorStateChange();

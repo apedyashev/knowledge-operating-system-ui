@@ -33,13 +33,12 @@
   </div>
 
   <tiptap-floating-menu [editor]="editor" [shouldShow]="shouldShowSlashMenu">
-    <div class="slash-menu-surface ml-6 rounded-lg shadow-lg" role="listbox" aria-label="Command menu">
-      <button
-        type="button"
-        class="slash-menu-item"
-        (click)="runLinkNodeCommand()"
-        role="option"
-      >
+    <div
+      class="slash-menu-surface ml-6 rounded-lg shadow-lg"
+      role="listbox"
+      aria-label="Command menu"
+    >
+      <button type="button" class="slash-menu-item" (click)="runLinkNodeCommand()" role="option">
         <span class="slash-menu-title">Link Node</span>
         <span class="slash-menu-hint">Insert @ to choose a node link</span>
       </button>

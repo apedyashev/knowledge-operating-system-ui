@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { MentionNode } from '#app/features/node/models/mention-node.model';
+import type { MentionNode } from '#app/features/node/models/mention-node.model';
 
 @Component({
   selector: 'app-mention-suggestions',
   standalone: true,
   templateUrl: './mention-suggestions.component.html',
   styleUrl: './mention-suggestions.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MentionSuggestionsComponent {
   @Input() suggestions: MentionNode[] = [];
@@ -34,7 +34,9 @@ export class MentionSuggestionsComponent {
       return false;
     }
 
-    return !this.suggestions.some((node) => node.title.trim().toLowerCase() === normalizedQuery.toLowerCase());
+    return !this.suggestions.some(
+      (node) => node.title.trim().toLowerCase() === normalizedQuery.toLowerCase(),
+    );
   }
 
   protected onSelect(node: MentionNode): void {

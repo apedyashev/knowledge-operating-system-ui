@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { API_BASE_URL } from '../../../core/config/api-base-url.token';
-import { SaveNodePayload } from '../models/node-save-payload.model';
+import type { SaveNodePayload } from '../models/node-save-payload.model';
 import { NodeApiService } from './node-api.service';
 
 describe('NodeApiService', () => {
@@ -17,8 +17,8 @@ describe('NodeApiService', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
-        { provide: API_BASE_URL, useValue: '/api' }
-      ]
+        { provide: API_BASE_URL, useValue: '/api' },
+      ],
     });
 
     service = TestBed.inject(NodeApiService);
@@ -34,8 +34,8 @@ describe('NodeApiService', () => {
       title: 'Invoice Generation',
       content: {
         type: 'doc',
-        content: []
-      }
+        content: [],
+      },
     };
 
     service.saveNode('node-123', payload).subscribe((response) => {
@@ -51,7 +51,7 @@ describe('NodeApiService', () => {
     request.flush({
       id: 'node-123',
       ...payload,
-      updatedAt: '2026-06-20T10:00:00.000Z'
+      updatedAt: '2026-06-20T10:00:00.000Z',
     });
   });
 
@@ -60,8 +60,8 @@ describe('NodeApiService', () => {
       title: 'Untitled',
       content: {
         type: 'doc',
-        content: []
-      }
+        content: [],
+      },
     };
 
     service.saveNode(null, payload).subscribe((response) => {
@@ -77,7 +77,7 @@ describe('NodeApiService', () => {
       id: 'node-new',
       ...payload,
       createdAt: '2026-06-20T10:00:00.000Z',
-      updatedAt: '2026-06-20T10:00:00.000Z'
+      updatedAt: '2026-06-20T10:00:00.000Z',
     });
   });
 });

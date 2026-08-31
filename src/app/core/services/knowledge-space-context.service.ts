@@ -2,15 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { combineLatest, filter, map, shareReplay, startWith } from 'rxjs';
 
-import {
-  KnowledgeSpaceResult,
-  KnowledgeSpaceService
-} from './knowledge-space.service';
+import type { KnowledgeSpaceResult } from './knowledge-space.service';
+import { KnowledgeSpaceService } from './knowledge-space.service';
 
-export type KnowledgeSpaceSelectorState = {
+export interface KnowledgeSpaceSelectorState {
   spaces: KnowledgeSpaceResult[];
   selectedSpace: KnowledgeSpaceResult | null;
-};
+}
 
 /**
  * Central reactive state for the Knowledge-Space selector.
@@ -28,7 +26,7 @@ export type KnowledgeSpaceSelectorState = {
  * `selectorState$` with the async pipe without manually subscribing.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class KnowledgeSpaceContextService {
   private readonly router = inject(Router);
@@ -38,7 +36,7 @@ export class KnowledgeSpaceContextService {
   // Components can consume this stream with Angular's async pipe.
   readonly spaces$ = this.knowledgeSpaceService.loadKnowledgeSpaces().pipe(
     // Keep the latest API result for all consumers and avoid duplicate HTTP requests.
-    shareReplay({ bufferSize: 1, refCount: true })
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   // The selector is rendered in the topbar, outside the routed NodePage component.
@@ -48,23 +46,22 @@ export class KnowledgeSpaceContextService {
     filter((event) => event instanceof NavigationEnd),
     // Emit once immediately so a directly opened URL is handled as well.
     startWith(null),
-    map(() => this.readCurrentSpaceSlug())
+    map(() => this.readCurrentSpaceSlug()),
   );
 
   // combineLatest waits until both the spaces request and the current URL have emitted.
   // Whenever either one changes, it derives a new selector state for the view.
   readonly selectorState$ = combineLatest({
     spaces: this.spaces$,
-    currentSpaceSlug: this.currentSpaceSlug$
+    currentSpaceSlug: this.currentSpaceSlug$,
   }).pipe(
     // The URL contains the slug, so the slug is the stable value used for matching.
     map(({ spaces, currentSpaceSlug }) => ({
       spaces,
-      selectedSpace:
-        spaces.find((space) => space.slug === currentSpaceSlug) ?? null
+      selectedSpace: spaces.find((space) => space.slug === currentSpaceSlug) ?? null,
     })),
     // Cache the combined state for the async pipe and future consumers.
-    shareReplay({ bufferSize: 1, refCount: true })
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   // The component calls this method when the user selects a different space.
@@ -75,7 +72,8 @@ export class KnowledgeSpaceContextService {
 
   private readCurrentSpaceSlug(): string {
     // parseUrl understands Angular's URL structure better than manually splitting strings.
-    const primarySegments = this.router.parseUrl(this.router.url).root.children['primary']?.segments;
+    const primarySegments = this.router.parseUrl(this.router.url).root.children['primary']
+      ?.segments;
 
     return primarySegments?.[0]?.path ?? '';
   }

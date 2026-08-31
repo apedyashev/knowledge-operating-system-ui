@@ -1,15 +1,15 @@
-import { Component, EventEmitter, Output, Input } from '@angular/core';
-import { NodeSearchResult } from '#core/services/node-search.service';
-import { Observable, of } from 'rxjs';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+
+import type { NodeSearchResult } from '#core/services/node-search.service';
 
 @Component({
   selector: 'app-search-overlay',
   imports: [],
   host: {
     class: 'fixed z-[999] inset-0 block',
-    '(window:keydown)': 'onWindowKeydown($event)'
+    '(window:keydown)': 'onWindowKeydown($event)',
   },
-  templateUrl: './search-overlay.html'
+  templateUrl: './search-overlay.html',
 })
 export class SearchOverlay {
   // Parent owns open/close state; overlay only emits close intent to keep this component presentational.
@@ -56,7 +56,9 @@ export class SearchOverlay {
         break;
       case 'Enter':
         if (this.activeColumn === 'left') {
-          const selected = this.showRecentSearches ? this.recentSearches[this.activeLeftIndex] : this.searchResults[this.activeLeftIndex];
+          const selected = this.showRecentSearches
+            ? this.recentSearches[this.activeLeftIndex]
+            : this.searchResults[this.activeLeftIndex];
           if (selected) {
             this.selectResult.emit(selected);
           }
@@ -79,7 +81,7 @@ export class SearchOverlay {
 
   private moveHorizontal(targetColumn: 'left' | 'right'): void {
     // If no item is currently focused, left right arrows will be used to move cursor in the search field
-    // not to switch columns, so we only switch columns if an item is already focused in either column. 
+    // not to switch columns, so we only switch columns if an item is already focused in either column.
     // if (this.activeLeftIndex === -1 && this.activeRightIndex === -1) {
     if (!this.isAnyItemFocused()) {
       return;
@@ -87,10 +89,13 @@ export class SearchOverlay {
 
     this.activeColumn = targetColumn;
 
-    if (targetColumn === 'left' && (this.recentSearches.length > 0 || this.searchResults.length > 0 )) {
+    if (
+      targetColumn === 'left' &&
+      (this.recentSearches.length > 0 || this.searchResults.length > 0)
+    ) {
       this.activeLeftIndex = 0;
       this.activeRightIndex = -1;
-    } else if (targetColumn === 'right'  && this.lastViewedNodes.length > 0) {
+    } else if (targetColumn === 'right' && this.lastViewedNodes.length > 0) {
       this.activeLeftIndex = -1;
       this.activeRightIndex = 0;
     }
@@ -99,15 +104,15 @@ export class SearchOverlay {
   private moveVertical(step: -1 | 1): void {
     if (this.activeColumn === 'left' && this.showRecentSearches) {
       this.activeLeftIndex = this.nextIndex(this.activeLeftIndex, this.recentSearches.length, step);
-      return;
     } else if (this.activeColumn === 'left' && this.searchResults.length > 0) {
       this.activeLeftIndex = this.nextIndex(this.activeLeftIndex, this.searchResults.length, step);
-      return;
     } else if (this.activeColumn === 'right') {
-      this.activeRightIndex = this.nextIndex(this.activeRightIndex, this.lastViewedNodes.length, step);
-      return;
+      this.activeRightIndex = this.nextIndex(
+        this.activeRightIndex,
+        this.lastViewedNodes.length,
+        step,
+      );
     }
-
   }
 
   private nextIndex(currentIndex: number, total: number, step: -1 | 1): number {
@@ -121,7 +126,7 @@ export class SearchOverlay {
 
     const nextIndex = currentIndex + step;
     if (nextIndex < 0) {
-      // pressing up on the first item should move focus to the search input, so we return -1 to indicate no active item. 
+      // pressing up on the first item should move focus to the search input, so we return -1 to indicate no active item.
       return -1;
       // return total - 1;
     } else if (nextIndex >= total) {

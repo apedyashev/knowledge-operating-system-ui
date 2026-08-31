@@ -7,7 +7,7 @@ export type AppIconName = 'chevron-down';
   standalone: true,
   templateUrl: './icon.component.html',
   styleUrls: ['./icon.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IconComponent {
   // The name makes the component reusable without repeating SVG markup in feature templates.

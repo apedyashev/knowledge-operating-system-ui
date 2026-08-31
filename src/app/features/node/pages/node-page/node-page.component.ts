@@ -1,11 +1,29 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewChild, inject, OnDestroy } from '@angular/core';
+import type { OnDestroy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { type JSONContent } from '@tiptap/core';
-import { catchError, debounceTime, distinctUntilChanged, EMPTY, map, Subject, Subscription, switchMap, tap } from 'rxjs';
+import type { Subscription } from 'rxjs';
+import {
+  EMPTY,
+  Subject,
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  switchMap,
+  tap,
+} from 'rxjs';
+
 import { LeftPanelComponent } from '../../../../core/layout/components/left-panel/left-panel.component';
 import { RightPanelComponent } from '../../../../core/layout/components/right-panel/right-panel.component';
 import { NodeEditorComponent } from '../../components/node-editor/node-editor.component';
-import { SaveNodePayload } from '../../models/node-save-payload.model';
+import type { SaveNodePayload } from '../../models/node-save-payload.model';
 import { NodeApiService } from '../../services/node-api.service';
 
 @Component({
@@ -13,7 +31,7 @@ import { NodeApiService } from '../../services/node-api.service';
   standalone: true,
   imports: [LeftPanelComponent, NodeEditorComponent, RightPanelComponent],
   templateUrl: './node-page.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NodePageComponent implements OnDestroy {
   private readonly nodeApiService = inject(NodeApiService);
@@ -27,7 +45,7 @@ export class NodePageComponent implements OnDestroy {
   protected nodeIsStub = false;
   protected nodeContent: JSONContent = {
     type: 'doc',
-    content: []
+    content: [],
   };
 
   private readonly saveEvents$ = new Subject<SaveNodePayload>();
@@ -44,9 +62,9 @@ export class NodePageComponent implements OnDestroy {
             // so future editor changes can still be saved.
             console.error('[NodePage] Node save failed', error);
             return EMPTY;
-          })
-        )
-      )
+          }),
+        ),
+      ),
     )
     .subscribe(() => {
       console.log('[NodePage] Node saved');
@@ -67,7 +85,7 @@ export class NodePageComponent implements OnDestroy {
           this.nodeIsStub = false;
           this.nodeContent = {
             type: 'doc',
-            content: []
+            content: [],
           };
           // EMPTY completes this inner branch without emitting a value.
           return EMPTY;
@@ -77,7 +95,7 @@ export class NodePageComponent implements OnDestroy {
           // tap is used for side effects: assign loaded data to component state.
           tap((node) => {
             this.nodeTitle = node.title;
-            this.nodeIsStub = !!node.isStub;
+            this.nodeIsStub = Boolean(node.isStub);
             this.nodeContent = node.content;
             // OnPush components update on input/reference changes, but explicit markForCheck
             // keeps async flows predictable and easier to reason about while learning.
@@ -88,9 +106,9 @@ export class NodePageComponent implements OnDestroy {
             this.changeDetectorRef.markForCheck();
             // Keep the stream alive after an error so a later route change can retry loading.
             return EMPTY;
-          })
+          }),
         );
-      })
+      }),
     )
     .subscribe();
 
@@ -115,21 +133,21 @@ export class NodePageComponent implements OnDestroy {
         title: trimmedTitle,
         content: {
           type: 'doc',
-          content: []
+          content: [],
         },
-        isStub: true
+        isStub: true,
       })
       .subscribe({
         next: (createdNode) => {
           this.nodeEditor?.selectMention({
             id: createdNode.id,
             title: createdNode.title,
-            isStub: !!createdNode.isStub
+            isStub: Boolean(createdNode.isStub),
           });
         },
         error: (error) => {
           console.error('[NodePage] Stub node creation failed', error);
-        }
+        },
       });
   }
 
