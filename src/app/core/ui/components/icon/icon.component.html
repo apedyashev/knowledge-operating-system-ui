@@ -17,4 +17,38 @@
       />
     </svg>
   }
+  @case ('error-circle') {
+    <svg
+      [style.width]="size"
+      [style.height]="size"
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.8" />
+      <path d="M10 6.25v4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+      <circle cx="10" cy="13.5" r="1" fill="currentColor" />
+    </svg>
+  }
+  @case ('loading') {
+    <svg
+      class="loading-icon"
+      [style.width]="size"
+      [style.height]="size"
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <circle class="loading-icon__track" cx="10" cy="10" r="7" stroke="currentColor" />
+      <path
+        class="loading-icon__arc"
+        d="M10 3a7 7 0 0 1 6.06 3.5"
+        stroke="currentColor"
+        stroke-linecap="round"
+      />
+      <circle class="loading-icon__dot" cx="16.06" cy="13.5" r="1.15" fill="currentColor" />
+    </svg>
+  }
 }

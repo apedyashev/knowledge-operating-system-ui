@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "oxc", "unicorn"],
+  "jsPlugins": ["./tools/oxlint-rxjs-plugin.mjs"],
   "env": {
     "browser": true,
     "node": true,
@@ -54,6 +55,7 @@
     "typescript/prefer-ts-expect-error": "error",
     "unicorn/no-useless-undefined": "error",
     "unicorn/prefer-includes": "error",
-    "unicorn/prefer-modern-dom-apis": "error"
+    "unicorn/prefer-modern-dom-apis": "error",
+    "kos-rxjs/prefer-takeuntil": "error"
   }
 }

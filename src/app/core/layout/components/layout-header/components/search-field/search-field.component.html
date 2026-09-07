@@ -1,0 +1,44 @@
+<label class="sr-only" for="layout-header-search">Search nodes</label>
+<div class="relative inline-flex">
+  <input
+    #searchInput
+    id="layout-header-search"
+    type="search"
+    placeholder="⌘K to search nodes..."
+    [value]="searchTerm"
+    class="relative z-1000 max-w-xl rounded-md border border-accent-muted px-3 py-2 pr-2 text-sm text-primary placeholder-accent-muted focus:outline-none focus:ring-2 focus-ring-accent-active"
+    [class]="backgroundClass"
+    (input)="onSearchInput($event)"
+    (focus)="onSearchInputFocus()"
+  />
+  @if (searchState$ | async; as searchState) {
+    @if (searchState.state === 'error') {
+      <span
+        class="pointer-events-none absolute inset-y-0 right-7 z-[1001] flex items-center text-red-500"
+        [attr.aria-label]="searchState?.message"
+      >
+        <app-icon name="error-circle" size="1.125rem"></app-icon>
+      </span>
+    } @else if (searchState.state === 'loading') {
+      <span
+        class="pointer-events-none absolute inset-y-0 right-7 z-1001 flex items-center text-accent-active"
+        aria-label="Searching"
+        role="status"
+      >
+        <app-icon name="loading" size="1.125rem"></app-icon>
+      </span>
+    }
+  }
+</div>
+@if (shouldShowOverlay) {
+  @if (searchState$ | async; as searchState) {
+    <app-search-overlay
+      (closeOverlay)="onCloseOverlay()"
+      [recentSearches]="(recentSearches$ | async) || []"
+      [searchResults]="searchState.state === 'success' ? searchState.data : []"
+      [lastViewedNodes]="(lastViewedNodes$ | async) || []"
+      [showRecentSearches]="showRecentSearches"
+      (selectResult)="onSelectResult($event)"
+    ></app-search-overlay>
+  }
+}

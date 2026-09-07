@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
-export type AppIconName = 'chevron-down';
+export type AppIconName = 'chevron-down' | 'error-circle' | 'loading';
 
 @Component({
   selector: 'app-icon',

@@ -1,7 +1,7 @@
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { SearchField } from './search-field';
+import { SearchField } from './search-field.component';
 
 describe('SearchField', () => {
   let component: SearchField;

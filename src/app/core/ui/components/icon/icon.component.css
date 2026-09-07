@@ -7,3 +7,42 @@
 svg {
   display: block;
 }
+
+.loading-icon {
+  animation: loading-icon-rotate 0.9s linear infinite;
+}
+
+.loading-icon__track {
+  opacity: 0.18;
+  stroke-width: 1.6;
+}
+
+.loading-icon__arc {
+  stroke-width: 2;
+}
+
+.loading-icon__dot {
+  animation: loading-icon-pulse 0.9s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes loading-icon-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loading-icon-pulse {
+  50% {
+    opacity: 0.35;
+    transform: scale(0.65);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-icon,
+  .loading-icon__dot {
+    animation: none;
+  }
+}

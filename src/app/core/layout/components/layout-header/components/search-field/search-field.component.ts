@@ -1,29 +1,37 @@
 import { AsyncPipe } from '@angular/common';
 import type { ElementRef } from '@angular/core';
-import { Component, EventEmitter, HostListener, Output, ViewChild, inject } from '@angular/core';
+import { Component, HostListener, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import {
   catchError,
   debounceTime,
   distinctUntilChanged,
   map,
+  retry,
   switchMap,
   tap,
+  startWith,
+  shareReplay,
 } from 'rxjs/operators';
 
 import { KnowledgeSpaceContextService } from '#core/services/knowledge-space-context.service';
 import type { NodeSearchResult } from '#core/services/node-search.service';
 import { NodeSearchService } from '#core/services/node-search.service';
 import { RecentActivityService } from '#core/services/recent-activity.service';
+import type { AsyncState } from '#core/shared/models/async-state.model';
+import { IconComponent } from '#core/ui/components/icon/icon.component';
 
 import { SearchOverlay } from './components/search-overlay/search-overlay';
+
+type NodeSearchState = AsyncState<NodeSearchResult[]>;
 
 @Component({
   selector: 'app-search-field',
   standalone: true,
-  imports: [AsyncPipe, SearchOverlay],
-  templateUrl: './search-field.html',
+  imports: [AsyncPipe, IconComponent, SearchOverlay],
+  templateUrl: './search-field.component.html',
+  styleUrls: ['./search-field.component.css'],
 })
 export class SearchField {
   private readonly nodeSearchService = inject(NodeSearchService);
@@ -31,20 +39,17 @@ export class SearchField {
   private readonly router = inject(Router);
   private readonly knowledgeSpaceContextService = inject(KnowledgeSpaceContextService);
 
-  @Output() searchChange = new EventEmitter<string>();
   // We keep a direct ref so keyboard shortcuts can focus the field from anywhere in the app shell.
   @ViewChild('searchInput') searchInputRef?: ElementRef<HTMLInputElement>;
 
-  private readonly searchTerm$ = new EventEmitter<string>();
+  readonly searchTermSubject = new BehaviorSubject<string>('');
   shouldShowOverlay = false;
   activeResultIndex = -1;
   searchTerm = '';
   lastViewedNodes$ = this.recentActivityService.lastViewedNodes$;
   recentSearches$ = this.recentActivityService.recentSearches$;
 
-  searchResults: NodeSearchResult[] = [];
-
-  readonly searchResults$ = this.searchTerm$.pipe(
+  readonly searchState$ = this.searchTermSubject.pipe(
     map((term) => term.trim()),
     debounceTime(500),
     // do not emit if current value is the same as previous one
@@ -52,21 +57,30 @@ export class SearchField {
     // we want to return a new observable
     switchMap((term) => {
       return term === ''
-        ? of([])
+        ? of<NodeSearchState>({ state: 'idle' })
         : this.nodeSearchService.searchNodes(term).pipe(
+            retry({ count: 2, delay: 1000 }),
             tap(() => {
               this.recentActivityService.addRecentSearch(term);
             }),
-            catchError(() => of([])),
+            map((results) => ({ state: 'success', data: results })),
+            startWith<NodeSearchState>({ state: 'loading' }),
+            catchError(() => {
+              return of<NodeSearchState>({
+                state: 'error',
+                message: 'An error occurred while searching.',
+              });
+            }),
           );
     }),
+    // cache last result to avoid unnecessary network requests for the same search term
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   // We emit text changes so parent containers can decide how search state is stored.
   onSearchInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.searchTerm = input.value;
-    this.searchTerm$.next(this.searchTerm);
+    this.updateSearchTerm(input.value);
   }
 
   onSearchInputFocus(): void {
@@ -87,6 +101,11 @@ export class SearchField {
 
   showOverlay(): void {
     this.shouldShowOverlay = true;
+  }
+
+  private updateSearchTerm(searchTerm: string) {
+    this.searchTerm = searchTerm;
+    this.searchTermSubject.next(searchTerm);
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -110,8 +129,7 @@ export class SearchField {
   onSelectResult(selected: string | NodeSearchResult): void {
     if (typeof selected === 'string') {
       // recent serch term selected
-      this.searchTerm$.next(selected);
-      // this.applyChangedSearchTerm(selected);
+      this.updateSearchTerm(selected);
     } else if (selected && 'title' in selected) {
       this.router.navigate([
         '/',
