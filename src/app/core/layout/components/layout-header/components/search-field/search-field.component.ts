@@ -51,7 +51,7 @@ export class SearchField {
 
   readonly searchState$ = this.searchTermSubject.pipe(
     map((term) => term.trim()),
-    debounceTime(500),
+    debounceTime(800),
     // do not emit if current value is the same as previous one
     distinctUntilChanged(),
     // we want to return a new observable

@@ -8,6 +8,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:one": "ng test --watch=false --include",
     "lint": "oxlint --config .oxlintrc.json .",
     "lint:fix": "oxlint --config .oxlintrc.json . --fix",
     "format": "oxfmt --write .",
