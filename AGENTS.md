@@ -345,6 +345,21 @@ The `core/layout/components/search-field/` component currently uses the reactive
 
 **Learning value:** Shows how RxJS operator composition works. **Future refactor:** Could convert to `toSignal()` at the boundary for simpler template logic (this is the modern trend).
 
+#### Explicit Learning Exception: SearchField Slice
+
+The `core/layout/components/search-field/` slice is intentionally mixed and partially legacy for teaching purposes.
+
+- This area may keep RxJS-first patterns, async pipe usage, and older Angular APIs while learning goals are active.
+- Do not treat "not yet converted to signals/input()/output()/OnPush" as a blocking defect in this slice by itself.
+- Reviews must separate:
+  - real defects (behavior, accessibility, regressions, broken tests)
+  - modernization opportunities (optional refactors for later)
+- If raising a modernization finding in this slice, label it explicitly as "learning-track optional" unless product behavior is affected.
+
+Scope for this exception:
+
+- `src/app/core/layout/components/layout-header/components/search-field/**`
+
 #### Summary Table: Choose Your Pattern
 
 | Question                                    | Use Signals                     | Use RxJS                   |

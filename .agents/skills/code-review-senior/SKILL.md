@@ -86,6 +86,7 @@ If rules are missing for the detected layer + technology → Review stops with s
    - Component/service conventions
    - Testing standards
    - Error handling guidelines
+  - Any explicit exceptions, waivers, or learning-track scopes (for example: intentionally legacy/RxJS-first slices)
 
 2. **Detect code layer** from file path:
    - Is it in `core/services/`? → Apply service patterns
@@ -116,6 +117,12 @@ If rules are missing for the detected layer + technology → Review stops with s
    Once rules are documented, I can review with full confidence.
    ```
 
+4. **Apply exception precedence (MANDATORY):**
+  - If AGENTS.md explicitly marks a file/folder as intentional legacy or learning-track, that rule takes precedence over generic modernization guidance.
+  - In that scope, do **not** raise findings that ask to migrate to newer patterns unless there is a functional defect.
+  - In that scope, do **not** recommend "future refactor", "future upgrade", or equivalent modernization suggestions.
+  - Only raise issues for real defects: broken behavior, accessibility gaps, regressions, failing tests, correctness, security, or performance bugs.
+
 ### Step 2: Analyze Code Against Rules
 
 For each rule category below, check the code:
@@ -131,6 +138,10 @@ For each rule category below, check the code:
 - Are state transitions predictable and testable?
 - Is there accidental mixing of patterns for the same concept?
 - Is state encapsulation proper (private with readonly access)?
+
+Exception handling:
+- If AGENTS.md explicitly allows a legacy/reactive pattern for the reviewed scope, treat that pattern as compliant.
+- Do not flag that pattern as a modernization issue or "nice-to-have" in that scope.
 
 #### Error Handling & Resilience
 - Are errors caught and handled explicitly?
@@ -269,7 +280,7 @@ private readonly searchTerm$ = new Subject<string>();
 Use this structure for EVERY finding (no exceptions):
 
 ```markdown
-### Finding N: [Title]
+## Finding N: [Title]
 
 **Location:** [file path], line ~[number]
 
@@ -296,7 +307,7 @@ Use this structure for EVERY finding (no exceptions):
 ### **Example: Real Learning-Focused Finding**
 
 ```markdown
-### Finding 1: EventEmitter → Subject (Semantic Correctness)
+## Finding 1: EventEmitter → Subject (Semantic Correctness)
 
 **Location:** `src/app/core/services/search.service.ts`, line ~30
 
@@ -424,6 +435,9 @@ End with:
 - **Learning Wins**: If applicable, what you're learning from this code
 - **Next Steps**: What to review or refactor next
 
+Exception-aware summary rule:
+- If AGENTS.md has an explicit learning-track exception for the reviewed scope, the summary must not include modernization "future refactor" recommendations for that scope unless they fix an actual defect.
+
 ### Step 6: Save Findings to Review File
 
 All findings must be persisted to the project for future reference:
@@ -443,7 +457,7 @@ All findings must be persisted to the project for future reference:
 
    ## High Priority Findings
 
-   ### Finding 1: [Title]
+   ## Finding 1: [Title]
    - What: [Description]
    - Why: [Impact + AGENTS.md reference]
    - How: [Suggested fix]
@@ -560,6 +574,16 @@ export class MyPageComponent {
 - **Security reviews** → Limited to documented security guidelines
 - **Performance tuning** → Requires documented performance standards in AGENTS.md
 - **Cannot invent patterns** → Only reviews against *documented* best practices, never against assumed standards
+
+## Exception Handling (Mandatory)
+
+When AGENTS.md explicitly declares that a scope is intentionally legacy, reactive, or learning-focused:
+
+1. Treat that architecture as compliant in that scope.
+2. Do not generate findings that request migration to newer APIs just for style consistency.
+3. Do not suggest future migration plans for that scope.
+4. Only report concrete defects or regressions.
+5. If mentioning alternatives, label them as "out of scope by AGENTS.md exception" and do not assign TODO action items.
 
 ## Re-Review Workflow (Verifying Fixed Findings)
 
@@ -700,7 +724,7 @@ Once a finding is verified ✅, update the status in review_findings.md:
 
 **Before:**
 ```markdown
-### Finding 1: EventEmitter → Subject (Semantic Correctness)
+## Finding 1: EventEmitter → Subject (Semantic Correctness)
 
 **Location:** `search-field.ts`, line ~30
 **Status:** 📝 TODO
@@ -708,7 +732,7 @@ Once a finding is verified ✅, update the status in review_findings.md:
 
 **After:**
 ```markdown
-### Finding 1: EventEmitter → Subject (Semantic Correctness)
+## Finding 1: EventEmitter → Subject (Semantic Correctness)
 
 **Location:** `search-field.ts`, line ~30
 **Status:** ✅ VERIFIED
